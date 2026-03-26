@@ -1,0 +1,34 @@
+"id": 4,
+      "title": "Un 20% de empresas españolas ya usa la IA, según el ...",
+      "url": "https://www.rtve.es/noticias/20250507/empresas-espanolas-utiliza-inteligencia-artificial-banco-espana/16569710.shtml",
+      "content": "Por sectores, la tasa de adopción de la IA en España muestra una elevada heterogeneidad. Según la EBAE, el uso de la IA está más extendido en las ramas de servicios a empresas, como los de información y comunicaciones, con un 31,6% y un 45,7% de empresas usuarias de IA predictiva e IA generativa, respectivamente. También en las actividades profesionales, científicas y técnicas, con una tasa de adopción respectiva del 26,6% y el 30,4%. Esto contrasta con las tasas de adopción de la IA observadas en la agricultura y la construcción, que se sitúan por debajo del 10%. El 20% de las empresas españolas ya emplean inteligencia artificial (IA) en sus negocios, la gran mayoría todavía en una fase experimental, según un estudio publicado este miércoles por el Banco de España a partir de su Encuesta sobre Actividad Empresarial (EBAE). La tasa de adopción de IA generativa (18,1%) es algo más elevada que la de IA predictiva (14,6%). En relación con la intensidad de su uso, un 60% de las empresas usuarias de la IA (en torno a un 12% del total de la muestra) declaran que la utilizan de manera experimental o en forma de programa piloto, mientras que un 34% (7% del total de la muestra) hacen un uso moderado y solo un 6% la emplean de manera intensa (1% del total de la muestra).",
+      "analysis": {
+        "page_type": "article",
+        "important_points": [
+          "20% of Spanish companies currently use AI, primarily in an experimental phase, according to a Banco de España study.",
+          "AI adoption varies significantly by sector.",
+          "Services to businesses (information and communications) show high adoption: 31.6% for predictive AI, 45.7% for generative AI.",
+          "Professional, scientific, and technical activities also have high adoption: 26.6% for predictive AI, 30.4% for generative AI.",
+          "Agriculture and construction sectors report low AI adoption, below 10%."
+        ],
+        "summary": "Un estudio del Banco de España indica que el 20% de las empresas españolas utilizan IA, mayoritariamente en fase experimental. La adopción es heterogénea por sectores: servicios a empresas (información y comunicaciones) tienen altas tasas (31.6% IA predictiva, 45.7% IA generativa), mientras que agricultura y construcción están por debajo del 10%. La IA generativa (18.1%) tiene una tasa de adopción ligeramente superior a la predictiva (14.6%).",
+        "key_facts": [
+          "Overall AI adoption in Spanish companies: 20%.",
+          "Information and communications sector: 31.6% (predictive AI), 45.7% (generative AI).",
+          "Professional, scientific, technical activities: 26.6% (predictive AI), 30.4% (generative AI).",
+          "Agriculture and construction sectors: Below 10% AI adoption."
+        ],
+        "pricing_info": [],
+        "feature_comparison": [
+          "Predictive AI vs. Generative AI adoption rates by sector"
+        ],
+        "tables_detected": [
+          "AI adoption rates by sector and AI type (predictive vs generative)"
+        ],
+        "missing_structured_data": [
+          "Detailed breakdown of AI adoption across all major sectors",
+          "Information on the specific experimental phases companies are undergoing"
+        ],
+        "error": null
+      }
+    },

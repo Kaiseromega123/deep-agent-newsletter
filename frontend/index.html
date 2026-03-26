@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deep Agent</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <style>
+    :root {
+      --white: #ffffff;
+      --bg: #f7f7f5;
+      --surface: #ffffff;
+      --border: #e8e8e4;
+      --border-strong: #d0d0ca;
+      --text: #1a1a18;
+      --text-muted: #8a8a82;
+      --text-faint: #b8b8b0;
+      --accent: #1a1a18;
+      --accent-soft: #f0f0ec;
+      --accent-hover: #2e2e2a;
+      --user-bubble: #1a1a18;
+      --user-text: #ffffff;
+      --tag-bg: #f0f0ec;
+      --tag-text: #6a6a60;
+      --success: #2d6a4f;
+      --error: #9b2335;
+      --error-bg: #fdf2f4;
+      --link: #1a1a18;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 6px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────── */
+    header {
+      height: 56px;
+      flex-shrink: 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 1.5rem;
+      z-index: 20;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 0.75rem;
+    }
+
+    .logo-badge {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      background: var(--tag-bg);
+      padding: 2px 7px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      margin-left: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-ghost {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-xs);
+      font-size: 0.82rem;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+
+    .btn-ghost:hover {
+      background: var(--accent-soft);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    /* ─── STATUS INDICATOR ─────────────────────────── */
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #22c55e;
+      display: inline-block;
+      position: relative;
+    }
+
+    .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.25);
+      animation: pulse-dot 2s infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.6); opacity: 0; }
+    }
+
+    .status-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    /* ─── LAYOUT ─────────────────────────────────────── */
+    .layout {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* ─── CHAT AREA ──────────────────────────────────── */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      scroll-behavior: smooth;
+    }
+
+    .chat-area::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .chat-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-area::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 10px;
+    }
+
+    /* ─── WELCOME ─────────────────────────────────────── */
+    .welcome-block {
+      padding: 1.5rem 0 2rem;
+      animation: fade-up 0.4s ease;
+    }
+
+    .welcome-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .welcome-sub {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 400;
+      margin-bottom: 1.5rem;
+    }
+
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .chip {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.45rem 0.85rem;
+      font-size: 0.82rem;
+      font-family: inherit;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
+      white-space: nowrap;
+    }
+
+    .chip:hover {
+      background: var(--accent-soft);
+      color: var(--text);
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    /* ─── MESSAGES ───────────────────────────────────── */
+    .msg-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 1.5rem;
+      animation: fade-up 0.3s ease;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* User message */
+    .msg-user {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 0.5rem;
+    }
+
+    .bubble-user {
+      background: var(--user-bubble);
+      color: var(--user-text);
+      padding: 0.75rem 1.1rem;
+      border-radius: 16px 16px 4px 16px;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      max-width: 72%;
+      word-break: break-word;
+    }
+
+    /* Bot message */
+    .msg-bot {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .bot-avatar {
+      width: 30px;
+      height: 30px;
+      background: var(--accent);
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .bot-avatar i {
+      color: white;
+      font-size: 0.72rem;
+    }
+
+    .bot-avatar.error {
+      background: var(--error);
+    }
+
+    .bubble-bot {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 4px 16px 16px 16px;
+      padding: 1rem 1.15rem;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      max-width: 88%;
+      box-shadow: var(--shadow-sm);
+      word-break: break-word;
+      flex: 1;
+    }
+
+    .bubble-bot.error {
+      background: var(--error-bg);
+      border-color: rgba(155,35,53,0.15);
+      color: var(--error);
+    }
+
+    .bubble-bot strong { font-weight: 600; }
+
+    /* ─── LOADING DOTS ───────────────────────────────── */
+    .typing-dots {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 20px;
+      padding: 0 4px;
+    }
+
+    .typing-dots span {
+      width: 6px;
+      height: 6px;
+      background: var(--text-faint);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+    }
+
+    /* ─── RESULTS GRID ───────────────────────────────── */
+    .results-section {
+      margin-top: 1.1rem;
+    }
+
+    .results-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 0.65rem;
+    }
+
+    .results-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .news-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .news-card:hover {
+      border-color: var(--border-strong);
+      box-shadow: var(--shadow-md);
+    }
+
+    .news-card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      line-height: 1.4;
+    }
+
+    .news-card-title:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .news-card-url {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      font-family: 'DM Mono', monospace;
+      word-break: break-all;
+      text-decoration: none;
+    }
+
+    .news-card-url:hover {
+      color: var(--text-muted);
+      text-decoration: underline;
+    }
+
+    .news-card-summary {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .news-card-footer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: auto;
+    }
+
+    .tag {
+      background: var(--tag-bg);
+      color: var(--tag-text);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      white-space: nowrap;
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .ext-icon {
+      font-size: 0.65rem;
+      color: var(--text-faint);
+      margin-left: 3px;
+    }
+
+    /* ─── INPUT AREA ─────────────────────────────────── */
+    .input-wrap {
+      flex-shrink: 0;
+      padding: 0.75rem 0 1.25rem;
+    }
+
+    .input-box {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: flex-end;
+      gap: 0.5rem;
+      padding: 0.65rem 0.75rem 0.65rem 1rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .input-box:focus-within {
+      border-color: var(--border-strong);
+      box-shadow: 0 0 0 3px rgba(26,26,24,0.06), var(--shadow-sm);
+    }
+
+    textarea#user-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: transparent;
+      min-height: 24px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    textarea#user-input::placeholder {
+      color: var(--text-faint);
+    }
+
+    .send-btn {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+      background: var(--accent);
+      border: none;
+      border-radius: 9px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.82rem;
+      transition: background 0.15s, transform 0.1s, opacity 0.15s;
+    }
+
+    .send-btn:hover:not(:disabled) {
+      background: var(--accent-hover);
+      transform: scale(1.05);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .input-hint {
+      font-size: 0.72rem;
+      color: var(--text-faint);
+      text-align: center;
+      margin-top: 0.45rem;
+    }
+
+    /* ─── DIVIDER ────────────────────────────────────── */
+    .thread-divider {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0.5rem 0 1.5rem;
+      color: var(--text-faint);
+      font-size: 0.72rem;
+    }
+
+    .thread-divider::before,
+    .thread-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ─── SCROLL ANCHOR ──────────────────────────────── */
+    #scroll-anchor { height: 1px; }
+
+    /* ─── TABLES ─────────────────────────────────────── */
+    .card-tables {
+      margin-top: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .card-table-block {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .card-table-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      padding: 0.5rem 0.85rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .card-table-wrap {
+      overflow-x: auto;
+    }
+
+    .card-table-wrap table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+
+    .card-table-wrap th {
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 600;
+      padding: 0.5rem 0.85rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    .card-table-wrap td {
+      padding: 0.45rem 0.85rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .card-table-wrap tr:last-child td {
+      border-bottom: none;
+    }
+
+    .card-table-wrap tr:hover td {
+      background: var(--bg);
+    }
+
+    /* ─── RESPONSIVE ─────────────────────────────────── */
+    @media (max-width: 600px) {
+      .layout { padding: 0 0.75rem; }
+      .bubble-user { max-width: 88%; }
+      .results-grid { grid-template-columns: 1fr; }
+      .welcome-title { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">
+        <i class="fa-solid fa-bolt"></i>
+      </div>
+      Deep Agent
+      <span class="logo-badge">Beta</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="status-text">
+        <span class="status-dot"></span>
+        Conectado
+      </div>
+      <button class="btn-ghost" id="new-chat-btn">
+        <i class="fa-regular fa-pen-to-square"></i>
+        Nueva conversación
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN LAYOUT -->
+  <div class="layout">
+
+    <!-- CHAT AREA -->
+    <div class="chat-area" id="chat-area">
+
+      <!-- WELCOME -->
+      <div class="welcome-block" id="welcome-block">
+        <div class="welcome-title">Hola, ¿qué quieres investigar?</div>
+        <div class="welcome-sub">Puedo buscar noticias, resumir artículos, analizar páginas web y razonar sobre lo que encuentre.</div>
+        <div class="suggestion-chips">
+          <button class="chip" onclick="fillInput(this)">Noticias sobre IA en España hoy</button>
+          <button class="chip" onclick="fillInput(this)">Analiza este artículo</button>
+          <button class="chip" onclick="fillInput(this)">Resumen de novedades en ciberseguridad</button>
+          <button class="chip" onclick="fillInput(this)">Tendencias en startups europeas</button>
+          <button class="chip" onclick="fillInput(this)">¿Qué pasó hoy en economía?</button>
+        </div>
+      </div>
+
+      <div id="scroll-anchor"></div>
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-wrap">
+      <div class="input-box">
+        <textarea
+          id="user-input"
+          rows="1"
+          placeholder="Busca noticias, analiza una URL, resume un tema…"
+          autocomplete="off"
+          spellcheck="true"
+        ></textarea>
+        <button class="send-btn" id="send-btn" disabled>
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+      </div>
+      <div class="input-hint">
+        <kbd style="font-family: 'DM Mono', monospace; font-size: 0.68rem; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px;">Enter</kbd>
+        para enviar &nbsp;·&nbsp;
+        <kbd style="font-family: 'DM Mono', monospace; font-size: 0.68rem; background: var(--tag-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1px 5px;">Shift+Enter</kbd>
+        para nueva línea
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ────────────────────────────────────────────
+       CONFIG
+    ──────────────────────────────────────────── */
+    const API_URL     = "http://127.0.0.1:8000/agent/run";
+    let   currentThreadId = null;
+    let   isLoading   = false;
+
+    /* ────────────────────────────────────────────
+       ELEMENTS
+    ──────────────────────────────────────────── */
+    const chatArea     = document.getElementById('chat-area');
+    const inputEl      = document.getElementById('user-input');
+    const sendBtn      = document.getElementById('send-btn');
+    const newChatBtn   = document.getElementById('new-chat-btn');
+    const scrollAnchor = document.getElementById('scroll-anchor');
+    const welcomeBlock = document.getElementById('welcome-block');
+
+    /* ────────────────────────────────────────────
+       INPUT BEHAVIOUR
+    ──────────────────────────────────────────── */
+    inputEl.addEventListener('input', () => {
+      inputEl.style.height = 'auto';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 140) + 'px';
+      sendBtn.disabled = !inputEl.value.trim() || isLoading;
+    });
+
+    inputEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    function fillInput(chip) {
+      inputEl.value = chip.textContent.trim();
+      inputEl.dispatchEvent(new Event('input'));
+      inputEl.focus();
+    }
+
+    /* ────────────────────────────────────────────
+       NEW CHAT
+    ──────────────────────────────────────────── */
+    newChatBtn.addEventListener('click', () => {
+      if (isLoading) return;
+      currentThreadId = null;
+
+      // Remove everything except welcome (re-inject) and scroll-anchor
+      chatArea.innerHTML = '';
+
+      const wb = document.createElement('div');
+      wb.className = 'welcome-block';
+      wb.id = 'welcome-block';
+      wb.innerHTML = `
+        <div class="welcome-title">Hola, ¿qué quieres investigar?</div>
+        <div class="welcome-sub">Puedo buscar noticias, resumir artículos, analizar páginas web y razonar sobre lo que encuentre.</div>
+        <div class="suggestion-chips">
+          <button class="chip" onclick="fillInput(this)">Noticias sobre IA en España hoy</button>
+          <button class="chip" onclick="fillInput(this)">Analiza este artículo</button>
+          <button class="chip" onclick="fillInput(this)">Resumen de novedades en ciberseguridad</button>
+          <button class="chip" onclick="fillInput(this)">Tendencias en startups europeas</button>
+          <button class="chip" onclick="fillInput(this)">¿Qué pasó hoy en economía?</button>
+        </div>`;
+      chatArea.appendChild(wb);
+
+      const anchor = document.createElement('div');
+      anchor.id = 'scroll-anchor';
+      chatArea.appendChild(anchor);
+
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+      sendBtn.disabled = true;
+      inputEl.focus();
+    });
+
+    /* ────────────────────────────────────────────
+       SEND MESSAGE
+    ──────────────────────────────────────────── */
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text || isLoading) return;
+
+      isLoading = true;
+      sendBtn.disabled = true;
+
+      // Hide welcome on first message
+      const wb = document.getElementById('welcome-block');
+      if (wb) wb.style.display = 'none';
+
+      // Thread divider after first bot response if thread exists
+      if (currentThreadId) {
+        insertDivider();
+      }
+
+      appendUserMsg(text);
+      inputEl.value = '';
+      inputEl.style.height = 'auto';
+      scrollToBottom();
+
+      const loadingId = appendLoading();
+      scrollToBottom();
+
+      try {
+        const payload = {
+          message: text,
+          thread_id: currentThreadId
+        };
+
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        let data = await res.json();
+        if (data.thread_id) currentThreadId = data.thread_id;
+
+        // Defensa: si assistant_message contiene el JSON real como string, promoverlo
+        if (data.assistant_message && typeof data.assistant_message === 'string') {
+          const msg = data.assistant_message.trim();
+          if (msg.startsWith('{') && msg.includes('"results"')) {
+            try {
+              const inner = JSON.parse(msg);
+              if (Array.isArray(inner.results)) {
+                data = { ...inner, thread_id: data.thread_id };
+              }
+            } catch(e) {}
+          }
+        }
+
+        removeEl(loadingId);
+        appendBotMsg(data);
+
+      } catch (err) {
+        removeEl(loadingId);
+        appendError('No se pudo conectar con el servidor. Asegúrate de que Uvicorn esté activo en <code style="font-family:DM Mono,monospace;font-size:0.85em">127.0.0.1:8000</code>.');
+        console.error(err);
+      }
+
+      isLoading = false;
+      sendBtn.disabled = !inputEl.value.trim();
+      scrollToBottom();
+      inputEl.focus();
+    }
+
+    /* ────────────────────────────────────────────
+       DOM HELPERS
+    ──────────────────────────────────────────── */
+    function getAnchor() {
+      return document.getElementById('scroll-anchor');
+    }
+
+    function insertBefore(html) {
+      const anchor = getAnchor();
+      anchor.insertAdjacentHTML('beforebegin', html);
+    }
+
+    function appendUserMsg(text) {
+      const safe = escapeHtml(text).replace(/\n/g, '<br>');
+      insertBefore(`
+        <div class="msg-group">
+          <div class="msg-user">
+            <div class="bubble-user">${safe}</div>
+          </div>
+        </div>`);
+    }
+
+    function appendLoading() {
+      const id = 'loading-' + Date.now();
+      insertBefore(`
+        <div class="msg-group" id="${id}">
+          <div class="msg-bot">
+            <div class="bot-avatar"><i class="fa-solid fa-bolt"></i></div>
+            <div class="bubble-bot">
+              <div class="typing-dots">
+                <span></span><span></span><span></span>
+              </div>
+            </div>
+          </div>
+        </div>`);
+      return id;
+    }
+
+    /* ────────────────────────────────────────────
+       TABLE PARSING (client-side, no AI needed)
+    ──────────────────────────────────────────── */
+
+    /**
+     * Extract all markdown tables from a string.
+     * Returns array of { headers: string[], rows: string[][] }
+     */
+    function extractMarkdownTables(text) {
+      if (!text) return [];
+      const tables = [];
+      const lines = text.split('\n');
+      let i = 0;
+
+      while (i < lines.length) {
+        const line = lines[i].trim();
+        // Table starts: line has pipes and isn't a separator-only line
+        if (line.startsWith('|') && line.endsWith('|') && !isSeparatorLine(line)) {
+          const tableLines = [];
+          while (i < lines.length) {
+            const l = lines[i].trim();
+            if (l.startsWith('|') && l.endsWith('|')) {
+              tableLines.push(l);
+              i++;
+            } else {
+              break;
+            }
+          }
+          if (tableLines.length >= 2) {
+            const parsed = parseTableLines(tableLines);
+            if (parsed) tables.push(parsed);
+          }
+        } else {
+          i++;
+        }
+      }
+      return tables;
+    }
+
+    function isSeparatorLine(line) {
+      return /^\|[\s\-:|]+\|$/.test(line);
+    }
+
+    function parseCells(line) {
+      return line.split('|')
+        .slice(1, -1) // remove leading and trailing empty from split
+        .map(c => c.trim());
+    }
+
+    function parseTableLines(lines) {
+      // Find separator row index
+      const sepIdx = lines.findIndex(l => isSeparatorLine(l));
+      if (sepIdx < 1) return null; // no separator = not a valid table
+
+      const headers = parseCells(lines[0]);
+      const rows = lines
+        .filter((_, idx) => idx !== 0 && idx !== sepIdx)
+        .map(parseCells)
+        .filter(r => r.length > 0 && r.some(c => c.length > 0));
+
+      if (!rows.length) return null;
+      return { headers, rows };
+    }
+
+    function renderTable(table) {
+      let html = '<table>';
+      html += '<thead><tr>';
+      table.headers.forEach(h => { html += `<th>${escapeHtml(h)}</th>`; });
+      html += '</tr></thead><tbody>';
+      table.rows.forEach(row => {
+        html += '<tr>';
+        // Pad or trim cells to match header count
+        for (let c = 0; c < table.headers.length; c++) {
+          html += `<td>${escapeHtml(row[c] ?? '')}</td>`;
+        }
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      return html;
+    }
+
+    /**
+     * Get tables for a result card.
+     * Priority: raw_content (markdown tables) → analysis.tables_detected (legacy)
+     */
+    function getTablesForResult(res) {
+      // 1) Parse directly from raw_content — fastest, no AI involved
+      const raw = res.raw_content || res.rawcontent || '';
+      if (raw) {
+        const tables = extractMarkdownTables(raw);
+        if (tables.length) return tables;
+      }
+
+      // 2) Legacy fallback: analysis.tables_detected (array of markdown strings from Gemini)
+      const detected = res.analysis?.tables_detected;
+      if (Array.isArray(detected) && detected.length) {
+        const tables = [];
+        detected.forEach(t => {
+          if (typeof t === 'string' && t.includes('|')) {
+            const lines = t.split('\n').filter(l => l.trim().startsWith('|'));
+            const parsed = parseTableLines(lines);
+            if (parsed) tables.push(parsed);
+          }
+        });
+        if (tables.length) return tables;
+      }
+
+      return [];
+    }
+
+    function renderCardTables(res) {
+      const tables = getTablesForResult(res);
+      if (!tables.length) return '';
+
+      let html = '<div class="card-tables">';
+      tables.forEach((table, i) => {
+        html += `
+          <div class="card-table-block">
+            <div class="card-table-label">📊 Tabla${tables.length > 1 ? ' ' + (i + 1) : ''}</div>
+            <div class="card-table-wrap">${renderTable(table)}</div>
+          </div>`;
+      });
+      html += '</div>';
+      return html;
+    }
+
+    function appendBotMsg(data) {
+      console.log('[appendBotMsg] data:', JSON.stringify(data).substring(0, 500));
+      let raw = data.assistant_message || '';
+
+      // Simple markdown: **bold**, _italic_, `code`, bullet lists
+      let html = escapeHtml(raw)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/_(.*?)_/g,        '<em>$1</em>')
+        .replace(/`([^`]+)`/g,      '<code style="font-family:DM Mono,monospace;font-size:0.85em;background:var(--tag-bg);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">$1</code>')
+        .replace(/\n- /g, '\n• ')
+        .replace(/\n/g, '<br>');
+
+      // Build results cards
+      let resultsHtml = '';
+      if (data.results && data.results.length > 0) {
+        const cards = data.results.map(res => {
+          const analysis = res.analysis || {};
+          let summary = analysis.summary || '';
+          if (!summary && analysis.important_points?.length) summary = analysis.important_points[0];
+
+          let tagsHtml = '';
+          if (analysis.page_type) {
+            tagsHtml += `<span class="tag">${escapeHtml(analysis.page_type)}</span>`;
+          }
+          (analysis.key_facts || []).slice(0, 2).forEach(f => {
+            if (f.length < 55) tagsHtml += `<span class="tag">${escapeHtml(f)}</span>`;
+          });
+
+          const title = res.title || 'Enlace';
+          const url   = res.url || '#';
+          const snip  = summary || res.content || '';
+
+          const tablesHtml = renderCardTables(res);
+
+          return `
+            <div class="news-card">
+              <a href="${url}" target="_blank" rel="noopener" class="news-card-title">
+                ${escapeHtml(title)}<i class="fa-solid fa-arrow-up-right-from-square ext-icon"></i>
+              </a>
+              <a href="${url}" target="_blank" rel="noopener" class="news-card-url">${escapeHtml(url)}</a>
+              ${snip ? `<div class="news-card-summary">${escapeHtml(snip)}</div>` : ''}
+              ${tablesHtml}
+              ${tagsHtml ? `<div class="news-card-footer">${tagsHtml}</div>` : ''}
+            </div>`;
+        }).join('');
+
+        resultsHtml = `
+          <div class="results-section">
+            <div class="results-label">Fuentes encontradas (${data.results.length})</div>
+            <div class="results-grid">${cards}</div>
+          </div>`;
+      }
+
+      insertBefore(`
+        <div class="msg-group">
+          <div class="msg-bot">
+            <div class="bot-avatar"><i class="fa-solid fa-bolt"></i></div>
+            <div class="bubble-bot" style="max-width:${resultsHtml ? '100%' : '78%'}">
+              <div>${html}</div>
+              ${resultsHtml}
+            </div>
+          </div>
+        </div>`);
+    }
+
+    function appendError(msg) {
+      insertBefore(`
+        <div class="msg-group">
+          <div class="msg-bot">
+            <div class="bot-avatar error"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <div class="bubble-bot error">${msg}</div>
+          </div>
+        </div>`);
+    }
+
+    function insertDivider() {
+      insertBefore(`<div class="thread-divider">continuación del hilo</div>`);
+    }
+
+    function removeEl(id) {
+      document.getElementById(id)?.remove();
+    }
+
+    function scrollToBottom() {
+      getAnchor()?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Focus on load
+    inputEl.focus();
+  </script>
+</body>
+</html>
